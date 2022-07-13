@@ -3,13 +3,13 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace agora.rtc
+namespace Agora.Rtc
 {
     internal class TextureManager : MonoBehaviour
     {
         // texture identity
-        private int _videoPixelWidth = 1280;
-        private int _videoPixelHeight = 720;
+        private int _videoPixelWidth = 0;
+        private int _videoPixelHeight = 0;
         private uint _uid = 0;
         private string _channelId = "";
         private VIDEO_SOURCE_TYPE _sourceType = VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA_PRIMARY;
@@ -124,11 +124,11 @@ namespace agora.rtc
             var ret = _videoStreamManager.GetVideoFrame(ref _cachedVideoFrame, ref isFresh, _sourceType, _uid, _channelId);
             this.Width = _cachedVideoFrame.width;
             this.Height = _cachedVideoFrame.height;
-            //AgoraLog.LogWarning("GetVideoFrame" + ret + " width:" + _cachedVideoFrame.width + " height:" + _cachedVideoFrame.height);
-            if (ret == IRIS_VIDEO_PROCESS_ERR.ERR_BUFFER_EMPTY ||ret == IRIS_VIDEO_PROCESS_ERR.ERR_NULL_POINTER)
+
+            if (ret == IRIS_VIDEO_PROCESS_ERR.ERR_BUFFER_EMPTY || ret == IRIS_VIDEO_PROCESS_ERR.ERR_NULL_POINTER)
             {
                 _canAttach = false;
-                AgoraLog.LogWarning(string.Format("no video frame for user channel: {0} uid: {1}", _channelId, _uid));
+                //AgoraLog.LogWarning(string.Format("no video frame for user channel: {0} uid: {1}", _channelId, _uid));
                 return;
             }
             else if (ret == IRIS_VIDEO_PROCESS_ERR.ERR_SIZE_NOT_MATCHING)
@@ -137,14 +137,12 @@ namespace agora.rtc
                 _videoPixelWidth = _cachedVideoFrame.width;
                 _videoPixelHeight = _cachedVideoFrame.height;
                 FreeMemory();
-                _cachedVideoFrame = new IrisVideoFrame
-                {
-                    type = VIDEO_OBSERVER_FRAME_TYPE.FRAME_TYPE_RGBA,
-                    y_stride = _videoPixelWidth * 4,
-                    height = _videoPixelHeight,
-                    width = _videoPixelWidth,
-                    y_buffer = Marshal.AllocHGlobal(_videoPixelWidth * _videoPixelHeight * 4)
-                };
+
+                _cachedVideoFrame.type = VIDEO_OBSERVER_FRAME_TYPE.FRAME_TYPE_RGBA;
+                _cachedVideoFrame.y_stride = _videoPixelWidth * 4;
+                _cachedVideoFrame.height = _videoPixelHeight;
+                _cachedVideoFrame.width = _videoPixelWidth;
+                _cachedVideoFrame.y_buffer = Marshal.AllocHGlobal(_videoPixelWidth * _videoPixelHeight * 4);
             }
             else
             {
@@ -185,8 +183,11 @@ namespace agora.rtc
 
         internal void Detach()
         {
-            _refCount--;
-            AgoraLog.Log("TextureManager refCount Minus, Now is: " + _refCount);
+            if (_refCount > 0)
+            {
+                _refCount--;
+                AgoraLog.Log("TextureManager refCount Minus, Now is: " + _refCount);
+            }
             return;
         }
 

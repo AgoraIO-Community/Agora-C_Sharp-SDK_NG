@@ -54,7 +54,7 @@ IOS_SRC_PATH=$CI_DIR/temp/ios/iris_*
 MAC_SRC_PATH="$CI_DIR"/temp/mac/iris_*
 WIN_SRC_PATH="$CI_DIR"/temp/win/iris_*
 cd temp || exit 1
-git clone -b "$DEMO_BRANCH" ssh://git@git.agoralab.co/agio/agora-unity-quickstart.git
+git clone -b "$DEMO_BRANCH" ssh://git@git.agoralab.co/agio/agora-unity-rtc-quickstart-ng.git
 cd "$CI_DIR" || exit 1
 echo "[Unity CI] finish preparing resources"
 
@@ -74,8 +74,8 @@ PLUGIN_PATH="$CI_DIR/project/Assets/$PLUGIN_NAME"
 
 # Copy API-Example
 echo "[Unity CI] copying API-Example ..."
-cp -r "$CI_DIR"/temp/Agora-Unity-Quickstart/API-Example-Unity/Assets/API-Example "$PLUGIN_PATH"
-cp -r "$CI_DIR"/temp/Agora-Unity-Quickstart/API-Example-Unity/Assets/StreamingAssets "$CI_DIR"/project/Assets/
+cp -r "$CI_DIR"/temp/Agora-Unity-RTC-QuickStart-NG/API-Example-Unity/Assets/API-Example "$PLUGIN_PATH"
+cp -r "$CI_DIR"/temp/Agora-Unity-RTC-QuickStart-NG/API-Example-Unity/Assets/StreamingAssets "$CI_DIR"/project/Assets/
 
 
 # Copy SDK
@@ -144,13 +144,13 @@ cp -PRf $MAC_SRC_PATH/MAC/Release/*.bundle "$MAC_DST_PATH"
 # Windows x86-64
 echo "[Unity CI] copying Windows x86-64 ..."
 WIN64_DST_PATH="$PLUGIN_PATH"/Agora-Unity-RTC-SDK/Plugins/x86_64
-cp $WIN_SRC_PATH/DCG/Agora_Native_SDK_for_Windows_FULL/x86_64/rtc/sdk/*.dll "$WIN64_DST_PATH"
+cp $WIN_SRC_PATH/DCG/Agora_Native_SDK_for_Windows_x64_*/rtc/sdk/*.dll "$WIN64_DST_PATH"
 cp $WIN_SRC_PATH/x64/Release/*.dll "$WIN64_DST_PATH"
 
 # Windows x86
 echo "[Unity CI] copying Windows x86 ..."
 WIN32_DST_PATH="$PLUGIN_PATH"/Agora-Unity-RTC-SDK/Plugins/x86
-cp $WIN_SRC_PATH/DCG/Agora_Native_SDK_for_Windows_FULL/x86/rtc/sdk/*.dll "$WIN32_DST_PATH"
+cp $WIN_SRC_PATH/DCG/Agora_Native_SDK_for_Windows_x86_*/rtc/sdk/*.dll "$WIN32_DST_PATH"
 cp $WIN_SRC_PATH/Win32/Release/*.dll "$WIN32_DST_PATH"
 
 echo "[Unity CI] finish copying files"
@@ -170,10 +170,10 @@ cp "$CI_DIR"/project/*.unitypackage "$CI_DIR"/output || exit 1
 if [ $BUILD_PACKAGE == "true" ] 
 then
     echo "[Unity CI] Build package. It may take a while ..."
-    mkdir "$CI_DIR"/temp/Agora-Unity-Quickstart/API-Example-Unity/Assets/Agora-RTC-Plugin
-    cp -r "$PLUGIN_PATH"/Agora-Unity-RTC-SDK "$CI_DIR"/temp/Agora-Unity-Quickstart/API-Example-Unity/Assets/Agora-RTC-Plugin || exit 1
-    $UNITY_DIR/Unity -quit -batchmode -nographics -projectPath "$CI_DIR/temp/Agora-Unity-Quickstart/API-Example-Unity" -executeMethod CommandBuild.BuildAll
-    cp -r "$CI_DIR"/temp/Agora-Unity-Quickstart/Build "$CI_DIR"/output || exit 1
+    mkdir "$CI_DIR"/temp/Agora-Unity-RTC-QuickStart-NG/API-Example-Unity/Assets/Agora-RTC-Plugin
+    cp -r "$PLUGIN_PATH"/Agora-Unity-RTC-SDK "$CI_DIR"/temp/Agora-Unity-RTC-QuickStart-NG/API-Example-Unity/Assets/Agora-RTC-Plugin || exit 1
+    $UNITY_DIR/Unity -quit -batchmode -nographics -projectPath "$CI_DIR/temp/Agora-Unity-RTC-QuickStart-NG/API-Example-Unity" -executeMethod CommandBuild.BuildAll
+    cp -r "$CI_DIR"/temp/Agora-Unity-RTC-QuickStart-NG/Build "$CI_DIR"/output || exit 1
     echo "[Unity CI] Build package finish"
 else 
     echo "[Unity CI] Do not build package"
@@ -185,7 +185,8 @@ then
     echo "[Unity CI] Build Wayang, It may take a while ..."
     cd temp
     git clone -b $WAYANG_BRANCH ssh://git@git.agoralab.co/apps/unitydemo.git
-    cp -r "$PLUGIN_PATH"/Agora-Unity-RTC-SDK "$CI_DIR"/temp/unitydemo/Assets || exit 1
+    mkdir "$CI_DIR"/temp/unitydemo/Assets/Agora-RTC-Plugin
+    cp -r "$PLUGIN_PATH"/Agora-Unity-RTC-SDK "$CI_DIR"/temp/unitydemo/Assets/Agora-RTC-Plugin || exit 1
     $UNITY_DIR/Unity -quit -batchmode -nographics -projectPath "$CI_DIR/temp/unitydemo" -executeMethod Wayang.CommandBuild.BuildAll
     cp -r "$CI_DIR"/temp/unitydemo/Wayang "$CI_DIR"/output || exit 1
     echo "[Unity CI] Build Wayang finish"
